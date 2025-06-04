@@ -1,0 +1,15 @@
+[Unit]
+Description=Local Remote Tunnel Server
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /path/to/tunnel.py server \
+    --cert /etc/tunnel/cert.pem \
+    --key /etc/tunnel/key.pem \
+    --listen 0.0.0.0:8000 \
+    --allow-port 80 \
+    --token SECRET
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
