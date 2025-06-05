@@ -8,7 +8,6 @@ This project provides a simple secure tunneling solution. It allows a client run
 - `tunnel.py` – small wrapper calling into the package.
 - `server.py` and `client.py` are kept for backward compatibility and simply invoke the same CLI.
 
-
 ## Topology
 
 The tunnel uses a star topology. Each client installs the tunneling software
@@ -24,15 +23,20 @@ the client's outbound tunnel to the local service.
    ```bash
    ./generate_cert.sh
    # or generate with pure Python (requires `cryptography`)
-
    pip install cryptography rich pytest
-
    python3 generate_cert.py
    ```
 2. Start the server on the bridge host (you can listen on multiple ports):
    ```bash
    python3 tunnel.py server --cert cert.pem --key key.pem \
        --listen 0.0.0.0:8000 --listen 0.0.0.0:9000 \
+      --allow-port 80 --allow-port 22 --token SECRET
+   # --allow-port restricts which destination ports clients may access (TCP or UDP)
+   # add -v for verbose logging
+   ```
+3. Start the client on the machine hosting the service you want to expose. Each
+   `--map` value forwards a local **TCP** address to a remote target via the server.
+   Use `--udp-map` for UDP services:
        --allow-port 80 --allow-port 22 --token SECRET
    # --allow-port restricts which destination ports clients may access
 
@@ -46,6 +50,10 @@ the client's outbound tunnel to the local service.
        --map 127.0.0.1:8080=localhost:80 \
        --map 127.0.0.1:2222=localhost:22 --token SECRET \
        --retries 5
+       --udp-map 127.0.0.1:5353=localhost:5353
+   # --retries controls how many times the client will try to reconnect if the
+   # server is temporarily unreachable
+   # add -v for verbose logging
    # --retries controls how many times the client will try to reconnect if the
    # server is temporarily unreachable
 
@@ -69,14 +77,20 @@ This is a work in progress.
 
 ## Testing
 
-
 The project ships with a battery of regression tests located in the `tests/`
 directory and executed with `pytest`.
 Run them with:
 
 ```bash
 pytest -s
+# or on Windows
+./testall.ps1
+```
 
+To quickly check all scripts compile without running them, you can call:
+
+```powershell
+./compile.ps1
 ```
 
 ## Windows GUI

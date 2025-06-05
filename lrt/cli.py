@@ -41,7 +41,13 @@ def main() -> None:
         "--map",
         action="append",
         metavar="LOCAL=TARGET",
-        help="Local listen address mapped to target host:port",
+        help="Forward TCP from LOCAL address to target host:port",
+    )
+    cli.add_argument(
+        "--udp-map",
+        action="append",
+        metavar="LOCAL=TARGET",
+        help="Forward UDP from LOCAL address to target host:port",
     )
     cli.add_argument("--token", required=True, help="Shared secret token")
     cli.add_argument("--ca", help="CA certificate for server")

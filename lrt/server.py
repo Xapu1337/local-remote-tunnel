@@ -1,5 +1,6 @@
 import asyncio
 import ssl
+import socket
 import logging
 import time
 from collections import defaultdict, deque
@@ -23,9 +24,13 @@ class RateLimiter:
         q.append(now)
         return True
 
-async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWriter,
-                        token: str, limiter: RateLimiter,
-                        allowed_ports: set[int] | None):
+async def handle_client(
+    reader: asyncio.StreamReader,
+    writer: asyncio.StreamWriter,
+    token: str,
+    limiter: RateLimiter,
+    allowed_ports: set[int] | None,
+):
     peer = writer.get_extra_info("peername")[0]
     if not limiter.allowed(peer):
         writer.close()
@@ -34,8 +39,9 @@ async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWrit
     try:
         line = await reader.readline()
         parts = line.decode().strip().split()
-        if len(parts) != 3 or parts[0] != "CONNECT" or parts[1] != token:
+        if len(parts) != 3 or parts[1] != token:
             raise ValueError("invalid header")
+        proto = parts[0]
         host, port_str = parts[2].split(":")
         port = int(port_str)
         if allowed_ports is not None and port not in allowed_ports:
@@ -45,25 +51,58 @@ async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWrit
         await writer.wait_closed()
         return
 
-    try:
-        remote_reader, remote_writer = await asyncio.open_connection(host, port)
-    except Exception:
+    loop = asyncio.get_running_loop()
+
+    if proto == "CONNECT":
+        try:
+            remote_reader, remote_writer = await asyncio.open_connection(host, port)
+        except Exception:
+            writer.close()
+            await writer.wait_closed()
+            return
+
+        async def pipe(reader1, writer1):
+            try:
+                while data := await reader1.read(4096):
+                    writer1.write(data)
+                    await writer1.drain()
+            finally:
+                writer1.close()
+
+        await asyncio.gather(
+            pipe(reader, remote_writer),
+            pipe(remote_reader, writer),
+        )
+
+    elif proto == "UDP":
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.connect((host, port))
+        sock.setblocking(False)
+
+        async def to_remote():
+            try:
+                while True:
+                    len_data = await reader.readexactly(2)
+                    length = int.from_bytes(len_data, "big")
+                    data = await reader.readexactly(length)
+                    await loop.sock_sendall(sock, data)
+            finally:
+                sock.close()
+
+        async def to_client():
+            try:
+                while True:
+                    data = await loop.sock_recv(sock, 65535)
+                    writer.write(len(data).to_bytes(2, "big") + data)
+                    await writer.drain()
+            finally:
+                writer.close()
+
+        await asyncio.gather(to_remote(), to_client())
+
+    else:
         writer.close()
         await writer.wait_closed()
-        return
-
-    async def pipe(reader1, writer1):
-        try:
-            while data := await reader1.read(4096):
-                writer1.write(data)
-                await writer1.drain()
-        finally:
-            writer1.close()
-
-    await asyncio.gather(
-        pipe(reader, remote_writer),
-        pipe(remote_reader, writer),
-    )
 
 
 def run_server(args) -> None:
