@@ -37,6 +37,14 @@ the client's outbound tunnel to the local service.
 3. Start the client on the machine hosting the service you want to expose. Each
    `--map` value forwards a local **TCP** address to a remote target via the server.
    Use `--udp-map` for UDP services:
+       --allow-port 80 --allow-port 22 --token SECRET
+   # --allow-port restricts which destination ports clients may access
+
+   # add -v for verbose logging
+
+   ```
+3. Start the client on the machine hosting the service you want to expose. Each
+   `--map` value forwards a local address to a remote target via the server:
    ```bash
    python3 tunnel.py client --server bridge.example.com:8000 \
        --map 127.0.0.1:8080=localhost:80 \
@@ -46,6 +54,11 @@ the client's outbound tunnel to the local service.
    # --retries controls how many times the client will try to reconnect if the
    # server is temporarily unreachable
    # add -v for verbose logging
+   # --retries controls how many times the client will try to reconnect if the
+   # server is temporarily unreachable
+
+   # add -v for verbose logging
+
    ```
 4. Remote users can reach the forwarded services by connecting to the server's
    listening ports. Each connection must send the shared token first, followed by

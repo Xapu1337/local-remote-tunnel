@@ -14,6 +14,10 @@ async def handle_local(
     ca: str | None,
     retries: int,
 ):
+async def handle_local(reader: asyncio.StreamReader, writer: asyncio.StreamWriter,
+                       server: str, target: str, token: str, ca: str | None,
+                       retries: int):
+
     attempt = 0
     while True:
         try:
@@ -121,7 +125,6 @@ async def handle_udp(
 def run_client(args) -> None:
     if not args.map and not args.udp_map:
         raise SystemExit("At least one --map or --udp-map must be provided")
-
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     servers = []
