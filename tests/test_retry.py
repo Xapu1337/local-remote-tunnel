@@ -1,8 +1,10 @@
 import socket
 import subprocess
 import threading
-import time
 import sys
+import time
+
+from utils import wait_port
 
 TOKEN = "TESTTOKEN"
 DATA = b"hi"
@@ -68,7 +70,7 @@ def test_retry():
         "9401",
     ])
 
-    time.sleep(2)
+    wait_port("127.0.0.1", 8400)
 
     s = socket.create_connection(("127.0.0.1", 9400))
     s.sendall(DATA)

@@ -2,9 +2,10 @@ import http.server
 import socket
 import subprocess
 import threading
-import time
 import urllib.request
 import sys
+
+from utils import wait_port
 
 TOKEN = "TESTTOKEN"
 
@@ -38,7 +39,7 @@ def test_webserver():
         "--allow-port",
         "9101",
     ])
-    time.sleep(1)
+    wait_port("127.0.0.1", 8100)
 
     client_proc = subprocess.Popen([
         "python3",
@@ -51,7 +52,7 @@ def test_webserver():
         "--token",
         TOKEN,
     ])
-    time.sleep(1)
+    wait_port("127.0.0.1", 9100)
 
     resp = urllib.request.urlopen("http://127.0.0.1:9100/")
     assert resp.status == 200

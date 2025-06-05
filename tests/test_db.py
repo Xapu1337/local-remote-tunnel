@@ -1,8 +1,9 @@
 import socket
 import subprocess
 import threading
-import time
 import sys
+
+from utils import wait_port
 
 TOKEN = "TESTTOKEN"
 
@@ -65,7 +66,7 @@ def test_db():
         "--allow-port",
         "9201",
     ])
-    time.sleep(1)
+    wait_port("127.0.0.1", 8200)
 
     client_proc = subprocess.Popen([
         "python3",
@@ -78,7 +79,7 @@ def test_db():
         "--token",
         TOKEN,
     ])
-    time.sleep(1)
+    wait_port("127.0.0.1", 9200)
 
     s = socket.create_connection(("127.0.0.1", 9200))
     s.sendall(b"SET foo bar\n")

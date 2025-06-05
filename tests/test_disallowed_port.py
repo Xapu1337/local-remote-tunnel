@@ -1,8 +1,9 @@
 import socket
 import subprocess
 import threading
-import time
 import sys
+
+from utils import wait_port
 
 TOKEN = "TESTTOKEN"
 
@@ -48,7 +49,7 @@ def test_disallowed_port():
         "--token",
         TOKEN,
     ])
-    time.sleep(1)
+    wait_port("127.0.0.1", 9510)
 
     client_proc = subprocess.Popen([
         "python3",
@@ -61,7 +62,7 @@ def test_disallowed_port():
         "--token",
         TOKEN,
     ])
-    time.sleep(1)
+    wait_port("127.0.0.1", 9512)
 
     s = socket.socket()
     try:

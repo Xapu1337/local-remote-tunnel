@@ -2,8 +2,9 @@ import os
 import socket
 import subprocess
 import threading
-import time
 import sys
+
+from utils import wait_port
 
 DATA_SIZE = 5 * 1024 * 1024  # 5MB
 TOKEN = "TESTTOKEN"
@@ -57,14 +58,14 @@ def test_tunnel():
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
     )
-    time.sleep(1)
+    wait_port("127.0.0.1", 8000)
 
     client_proc = subprocess.Popen(
         ["python3", "tunnel.py", "client", "--server", "127.0.0.1:8000", "--map", "127.0.0.1:9000=127.0.0.1:9001", "--token", TOKEN],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
     )
-    time.sleep(1)
+    wait_port("127.0.0.1", 9000)
 
     data = os.urandom(DATA_SIZE)
     s = socket.create_connection(("127.0.0.1", 9000))

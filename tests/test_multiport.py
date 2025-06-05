@@ -2,8 +2,9 @@ import os
 import socket
 import subprocess
 import threading
-import time
 import sys
+
+from utils import wait_port
 
 TOKEN = "TESTTOKEN"
 DATA = b"hello"
@@ -55,7 +56,7 @@ def test_multiport():
         "--allow-port",
         "9702",
     ])
-    time.sleep(1)
+    wait_port("127.0.0.1", 8500)
 
     client_proc = subprocess.Popen([
         "python3",
@@ -70,7 +71,8 @@ def test_multiport():
         "--token",
         TOKEN,
     ])
-    time.sleep(1)
+    wait_port("127.0.0.1", 9600)
+    wait_port("127.0.0.1", 9601)
 
     for lp in (9600, 9601):
         s = socket.create_connection(("127.0.0.1", lp))

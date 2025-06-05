@@ -1,8 +1,10 @@
 import socket
 import subprocess
 import threading
-import time
 import sys
+import time
+
+from utils import wait_port
 
 TOKEN = "TESTTOKEN"
 DATA = b"ping"
@@ -41,7 +43,7 @@ def test_udp_forward():
         "--allow-port",
         "9801",
     ])
-    time.sleep(1)
+    wait_port("127.0.0.1", 8600)
 
     client_proc = subprocess.Popen([
         "python3",

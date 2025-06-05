@@ -2,8 +2,9 @@ import os
 import socket
 import subprocess
 import threading
-import time
 import sys
+
+from utils import wait_port
 
 TOKEN = "TESTTOKEN"
 SIZE = 10 * 1024 * 1024  # 10MB
@@ -52,7 +53,7 @@ def test_large_transfer():
         "--allow-port",
         "9301",
     ])
-    time.sleep(1)
+    wait_port("127.0.0.1", 8300)
 
     client_proc = subprocess.Popen([
         "python3",
@@ -65,7 +66,7 @@ def test_large_transfer():
         "--token",
         TOKEN,
     ])
-    time.sleep(1)
+    wait_port("127.0.0.1", 9300)
 
     data = os.urandom(SIZE)
     s = socket.create_connection(("127.0.0.1", 9300))
