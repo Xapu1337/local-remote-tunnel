@@ -2,12 +2,14 @@ import socket
 import subprocess
 import threading
 import time
+import sys
 
 TOKEN = "TESTTOKEN"
 
 
 def start_echo_server(port):
     srv = socket.socket()
+    srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     srv.bind(("127.0.0.1", port))
     srv.listen()
 
@@ -30,6 +32,7 @@ def start_echo_server(port):
 
 def main():
     echo = start_echo_server(9501)
+    subprocess.check_call([sys.executable, "generate_cert.py"])
     server_proc = subprocess.Popen([
         "python3",
         "tunnel.py",

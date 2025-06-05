@@ -17,9 +17,13 @@ the client's outbound tunnel to the local service.
 
 ## Usage
 
-1. Generate a self‑signed certificate for the server:
+1. Generate a self‑signed certificate for the server. You can use the shell
+   script or the Python equivalent depending on your platform:
    ```bash
    ./generate_cert.sh
+   # or generate with pure Python (requires `cryptography`)
+   pip install cryptography
+   python3 generate_cert.py
    ```
 2. Start the server on the bridge host (you can listen on multiple ports):
    ```bash
@@ -66,7 +70,7 @@ python3 test_webserver.py     # simple HTTP reachability test
 python3 test_db.py            # interactive database-style server test
 python3 test_invalid_token.py # server rejects wrong token
 python3 test_disallowed_port.py # connection fails if port is not allowed
-=======
+
 Two helper scripts exercise the tunnel:
 
 ```
@@ -83,6 +87,4 @@ minimal interface for starting the client and viewing its log output. Run:
 python windows_gui.py
 ```
 
-Fill in the server address, shared token and one or more mapping lines (in the
-form `LOCAL=HOST:PORT`) then click **Start**.
-
+Fill in the server address, shared token and one or more mapping lines (in the form `LOCAL=HOST:PORT`) then click **Start**.

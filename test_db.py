@@ -2,13 +2,14 @@ import socket
 import subprocess
 import threading
 import time
-
+import sys
 TOKEN = "TESTTOKEN"
 
 
 def start_kv_server(port):
     db = {}
     srv = socket.socket()
+    srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     srv.bind(("127.0.0.1", port))
     srv.listen()
 
@@ -44,8 +45,7 @@ def start_kv_server(port):
 
 
 def main():
-    subprocess.check_call(["./generate_cert.sh"])
-
+    subprocess.check_call([sys.executable, "generate_cert.py"])
     kv_srv = start_kv_server(9201)
 
     server_proc = subprocess.Popen([

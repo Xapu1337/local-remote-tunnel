@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Thin wrapper executing `tunnel.py server` for backward compatibility."""
 
-from tunnel import run_server, main as tunnel_main
+from tunnel import main as tunnel_main
 
 
 def main() -> None:

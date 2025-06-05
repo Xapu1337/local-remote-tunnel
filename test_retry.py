@@ -2,6 +2,7 @@ import socket
 import subprocess
 import threading
 import time
+import sys
 
 TOKEN = "TESTTOKEN"
 DATA = b"hi"
@@ -9,6 +10,7 @@ DATA = b"hi"
 
 def start_echo_server(port):
     srv = socket.socket()
+    srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     srv.bind(("127.0.0.1", port))
     srv.listen()
 
@@ -30,8 +32,7 @@ def start_echo_server(port):
 
 
 def main():
-    subprocess.check_call(["./generate_cert.sh"])
-
+    subprocess.check_call([sys.executable, "generate_cert.py"])
     echo_srv = start_echo_server(9401)
 
     client_proc = subprocess.Popen([

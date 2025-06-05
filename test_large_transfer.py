@@ -3,6 +3,7 @@ import socket
 import subprocess
 import threading
 import time
+import sys
 
 TOKEN = "TESTTOKEN"
 SIZE = 10 * 1024 * 1024  # 10MB
@@ -18,6 +19,7 @@ def start_echo_server(port):
                 conn.sendall(data)
 
     srv = socket.socket()
+    srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     srv.bind(("127.0.0.1", port))
     srv.listen()
 
@@ -31,7 +33,7 @@ def start_echo_server(port):
 
 
 def main():
-    subprocess.check_call(["./generate_cert.sh"])
+    subprocess.check_call([sys.executable, "generate_cert.py"])
 
     echo_srv = start_echo_server(9301)
 

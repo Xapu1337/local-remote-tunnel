@@ -60,8 +60,8 @@ async def handle_local(
 def run_client(args):
     if not args.map:
         raise SystemExit("At least one --map must be provided")
-
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     servers = []
     for m in args.map:
         local, target = m.split("=", 1)
@@ -167,7 +167,8 @@ def run_server(args):
     limiter = RateLimiter(args.rate)
     allowed_ports = {int(p) for p in args.allow_port} if args.allow_port else None
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     servers = []
 
     for listen in args.listen:
