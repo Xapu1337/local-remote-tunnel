@@ -7,6 +7,14 @@ This project provides a simple secure tunneling solution. It allows a client run
 - `tunnel.py` – unified CLI with `server` and `client` subcommands.
 - `server.py` and `client.py` remain as thin wrappers but using `tunnel.py` internally.
 
+## Topology
+
+The tunnel uses a star topology. Each client installs the tunneling software
+and connects to a central server running on the host machine. The server acts as
+a bridge, relaying traffic between remote users and the services exposed by
+clients. Connections travel from the remote user to the server and then through
+the client's outbound tunnel to the local service.
+
 ## Usage
 
 1. Generate a self‑signed certificate for the server:
@@ -37,10 +45,28 @@ This project provides a simple secure tunneling solution. It allows a client run
 
 5. To run the server continuously, create a systemd unit pointing at the `server` subcommand. A basic example is provided in `tunnel.service`.
 
+## Guided setup
+
+If you prefer an interactive setup, run `wizard.py` and follow the prompts. It
+will help you generate a certificate, start a server or launch a client with the
+appropriate parameters.
+
 This is a work in progress.
 
 ## Testing
 
+Several helper scripts exercise the tunnel:
+
+```
+python3 test_tunnel.py        # 5MB transfer through the tunnel
+python3 test_large_transfer.py # 10MB transfer stress test
+python3 test_multiport.py     # multiple mappings on one client
+python3 test_retry.py         # client reconnection logic
+python3 test_webserver.py     # simple HTTP reachability test
+python3 test_db.py            # interactive database-style server test
+python3 test_invalid_token.py # server rejects wrong token
+python3 test_disallowed_port.py # connection fails if port is not allowed
+=======
 Two helper scripts exercise the tunnel:
 
 ```

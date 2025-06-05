@@ -1,0 +1,84 @@
+import socket
+import subprocess
+import threading
+import time
+
+TOKEN = "TESTTOKEN"
+DATA = b"hi"
+
+
+def start_echo_server(port):
+    srv = socket.socket()
+    srv.bind(("127.0.0.1", port))
+    srv.listen()
+
+    def handle(conn):
+        with conn:
+            while True:
+                data = conn.recv(4096)
+                if not data:
+                    break
+                conn.sendall(data)
+
+    def loop():
+        while True:
+            conn, _ = srv.accept()
+            threading.Thread(target=handle, args=(conn,), daemon=True).start()
+
+    threading.Thread(target=loop, daemon=True).start()
+    return srv
+
+
+def main():
+    subprocess.check_call(["./generate_cert.sh"])
+
+    echo_srv = start_echo_server(9401)
+
+    client_proc = subprocess.Popen([
+        "python3",
+        "tunnel.py",
+        "client",
+        "--server",
+        "127.0.0.1:8400",
+        "--map",
+        "127.0.0.1:9400=127.0.0.1:9401",
+        "--token",
+        TOKEN,
+        "--retries",
+        "5",
+    ])
+
+    time.sleep(2)
+
+    server_proc = subprocess.Popen([
+        "python3",
+        "tunnel.py",
+        "server",
+        "--cert",
+        "cert.pem",
+        "--key",
+        "key.pem",
+        "--listen",
+        "127.0.0.1:8400",
+        "--token",
+        TOKEN,
+        "--allow-port",
+        "9401",
+    ])
+
+    time.sleep(2)
+
+    s = socket.create_connection(("127.0.0.1", 9400))
+    s.sendall(DATA)
+    resp = s.recv(len(DATA))
+    assert resp == DATA
+    s.close()
+    print("retry ok")
+
+    client_proc.terminate()
+    server_proc.terminate()
+    echo_srv.close()
+
+
+if __name__ == "__main__":
+    main()
