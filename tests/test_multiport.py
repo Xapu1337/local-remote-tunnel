@@ -1,0 +1,88 @@
+import os
+import socket
+import subprocess
+import threading
+import sys
+
+from utils import wait_port
+
+TOKEN = "TESTTOKEN"
+DATA = b"hello"
+
+
+def start_echo_server(port):
+    srv = socket.socket()
+    srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    srv.bind(("127.0.0.1", port))
+    srv.listen()
+
+    def handle(conn):
+        with conn:
+            while True:
+                data = conn.recv(4096)
+                if not data:
+                    break
+                conn.sendall(data)
+
+    def loop():
+        while True:
+            conn, _ = srv.accept()
+            threading.Thread(target=handle, args=(conn,), daemon=True).start()
+
+    threading.Thread(target=loop, daemon=True).start()
+    return srv
+
+
+def test_multiport():
+    subprocess.check_call([sys.executable, "generate_cert.py"])
+
+    echo1 = start_echo_server(9701)
+    echo2 = start_echo_server(9702)
+
+    server_proc = subprocess.Popen([
+        "python3",
+        "tunnel.py",
+        "server",
+        "--cert",
+        "cert.pem",
+        "--key",
+        "key.pem",
+        "--listen",
+        "127.0.0.1:8500",
+        "--token",
+        TOKEN,
+        "--allow-port",
+        "9701",
+        "--allow-port",
+        "9702",
+    ])
+    wait_port("127.0.0.1", 8500)
+
+    client_proc = subprocess.Popen([
+        "python3",
+        "tunnel.py",
+        "client",
+        "--server",
+        "127.0.0.1:8500",
+        "--map",
+        "127.0.0.1:9600=127.0.0.1:9701",
+        "--map",
+        "127.0.0.1:9601=127.0.0.1:9702",
+        "--token",
+        TOKEN,
+    ])
+    wait_port("127.0.0.1", 9600)
+    wait_port("127.0.0.1", 9601)
+
+    for lp in (9600, 9601):
+        s = socket.create_connection(("127.0.0.1", lp))
+        s.sendall(DATA)
+        resp = s.recv(len(DATA))
+        assert resp == DATA
+        s.close()
+
+
+    client_proc.terminate()
+    server_proc.terminate()
+    echo1.close()
+    echo2.close()
