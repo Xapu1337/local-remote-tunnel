@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
-"""Thin wrapper executing `tunnel.py client` for backward compatibility."""
+"""Thin wrapper executing the Local Remote Tunnel CLI."""
 
-from tunnel import main as tunnel_main
-
-
-def main() -> None:
-    tunnel_main()
-
+from lrt.cli import main
 
 if __name__ == "__main__":
     main()

@@ -4,8 +4,10 @@ This project provides a simple secure tunneling solution. It allows a client run
 
 ## Components
 
-- `tunnel.py` – unified CLI with `server` and `client` subcommands.
-- `server.py` and `client.py` remain as thin wrappers but using `tunnel.py` internally.
+- `lrt/` – Python package implementing the tunnel logic.
+- `tunnel.py` – small wrapper calling into the package.
+- `server.py` and `client.py` are kept for backward compatibility and simply invoke the same CLI.
+
 
 ## Topology
 
@@ -22,7 +24,9 @@ the client's outbound tunnel to the local service.
    ```bash
    ./generate_cert.sh
    # or generate with pure Python (requires `cryptography`)
-   pip install cryptography
+
+   pip install cryptography rich pytest
+
    python3 generate_cert.py
    ```
 2. Start the server on the bridge host (you can listen on multiple ports):
@@ -31,6 +35,9 @@ the client's outbound tunnel to the local service.
        --listen 0.0.0.0:8000 --listen 0.0.0.0:9000 \
        --allow-port 80 --allow-port 22 --token SECRET
    # --allow-port restricts which destination ports clients may access
+
+   # add -v for verbose logging
+
    ```
 3. Start the client on the machine hosting the service you want to expose. Each
    `--map` value forwards a local address to a remote target via the server:
@@ -41,6 +48,9 @@ the client's outbound tunnel to the local service.
        --retries 5
    # --retries controls how many times the client will try to reconnect if the
    # server is temporarily unreachable
+
+   # add -v for verbose logging
+
    ```
 4. Remote users can reach the forwarded services by connecting to the server's
    listening ports. Each connection must send the shared token first, followed by
@@ -59,23 +69,14 @@ This is a work in progress.
 
 ## Testing
 
-Several helper scripts exercise the tunnel:
 
-```
-python3 test_tunnel.py        # 5MB transfer through the tunnel
-python3 test_large_transfer.py # 10MB transfer stress test
-python3 test_multiport.py     # multiple mappings on one client
-python3 test_retry.py         # client reconnection logic
-python3 test_webserver.py     # simple HTTP reachability test
-python3 test_db.py            # interactive database-style server test
-python3 test_invalid_token.py # server rejects wrong token
-python3 test_disallowed_port.py # connection fails if port is not allowed
+The project ships with a battery of regression tests located in the `tests/`
+directory and executed with `pytest`.
+Run them with:
 
-Two helper scripts exercise the tunnel:
+```bash
+pytest -s
 
-```
-python3 test_tunnel.py      # bulk data transfer test
-python3 test_webserver.py   # simple HTTP reachability test
 ```
 
 ## Windows GUI
