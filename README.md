@@ -21,7 +21,8 @@ the client's outbound tunnel to the local service.
    script or the Python equivalent depending on your platform:
    ```bash
    ./generate_cert.sh
-   # or (requires the `cryptography` package)
+   # or generate with pure Python (requires `cryptography`)
+   pip install cryptography
    python3 generate_cert.py
    ```
 2. Start the server on the bridge host (you can listen on multiple ports):

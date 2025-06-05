@@ -9,6 +9,7 @@ TOKEN = "TESTTOKEN"
 
 def start_echo_server(port):
     srv = socket.socket()
+    srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     srv.bind(("127.0.0.1", port))
     srv.listen()
 
