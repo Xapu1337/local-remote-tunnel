@@ -20,7 +20,6 @@ def start_http_server(port):
 
 def main():
     subprocess.check_call([sys.executable, "generate_cert.py"])
-
     http_srv = start_http_server(9101)
 
     server_proc = subprocess.Popen([

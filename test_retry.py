@@ -33,7 +33,6 @@ def start_echo_server(port):
 
 def main():
     subprocess.check_call([sys.executable, "generate_cert.py"])
-
     echo_srv = start_echo_server(9401)
 
     client_proc = subprocess.Popen([

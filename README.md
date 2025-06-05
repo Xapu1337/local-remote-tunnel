@@ -70,6 +70,12 @@ python3 test_webserver.py     # simple HTTP reachability test
 python3 test_db.py            # interactive database-style server test
 python3 test_invalid_token.py # server rejects wrong token
 python3 test_disallowed_port.py # connection fails if port is not allowed
+
+Two helper scripts exercise the tunnel:
+
+```
+python3 test_tunnel.py      # bulk data transfer test
+python3 test_webserver.py   # simple HTTP reachability test
 ```
 
 ## Windows GUI

@@ -3,7 +3,6 @@ import subprocess
 import threading
 import time
 import sys
-
 TOKEN = "TESTTOKEN"
 
 
@@ -47,7 +46,6 @@ def start_kv_server(port):
 
 def main():
     subprocess.check_call([sys.executable, "generate_cert.py"])
-
     kv_srv = start_kv_server(9201)
 
     server_proc = subprocess.Popen([

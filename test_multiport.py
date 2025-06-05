@@ -34,7 +34,6 @@ def start_echo_server(port):
 
 def main():
     subprocess.check_call([sys.executable, "generate_cert.py"])
-
     echo1 = start_echo_server(9501)
     echo2 = start_echo_server(9502)
 

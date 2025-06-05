@@ -60,7 +60,6 @@ async def handle_local(
 def run_client(args):
     if not args.map:
         raise SystemExit("At least one --map must be provided")
-
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     servers = []
