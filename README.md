@@ -81,6 +81,4 @@ minimal interface for starting the client and viewing its log output. Run:
 python windows_gui.py
 ```
 
-Fill in the server address, shared token and one or more mapping lines (in the
-form `LOCAL=HOST:PORT`) then click **Start**.
-
+Fill in the server address, shared token and one or more mapping lines (in the form `LOCAL=HOST:PORT`) then click **Start**.
