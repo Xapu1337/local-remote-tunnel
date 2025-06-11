@@ -66,6 +66,11 @@ This is a work in progress.
 
 The project ships with a battery of regression tests located in the `tests/`
 directory and executed with `pytest`.
+First install the required dependencies:
+
+```bash
+pip install -r requirements.txt
+```
 Run them with:
 
 ```bash
